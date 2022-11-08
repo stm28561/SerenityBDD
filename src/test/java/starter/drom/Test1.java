@@ -60,15 +60,13 @@ public class Test1 {
         mainPageWithSearch.searchButton.click();
         mainPageWithSearch.waitFor(5);
 
+        mainPageWithSearch.collectTitlesOfCars();
         mainPageWithSearch.collectMileageOfCars();
         mainPageWithSearch.collectPricesOfCars();
 
-
-        Assertions.assertThat((int) mainPageWithSearch.getMileageOfElementsAfterSearchList()
-                .stream()
-                .filter(o -> Integer.parseInt(o.getText().replaceAll("[^0-9]+", ""))  < 1)
-                .count()).isLessThan(1);
-
+        mainPageWithSearch.checkIfCarIsNotSold();
+        mainPageWithSearch.checkIfAllCarsYearMoreThen(2007);
+        mainPageWithSearch.checkIfAllCarsHaveMileage();
 
     }
 

@@ -41,6 +41,8 @@ public class MainPageWithSearch extends PageObject{
 
         private List<WebElementFacade> pricesOfElementsAfterSearchList;
 
+        private List<WebElementFacade> titlesOfElementsAfterSearchList;
+
         public void initializeElementsOfFilter() {
                 searchButton = find(By.xpath("//div[@class = 'css-tjza12 e1lm3vns0' and contains(.,'Показать')]"));
                 carBrand = find(By.xpath("//input[@placeholder = 'Марка']"));
@@ -62,12 +64,6 @@ public class MainPageWithSearch extends PageObject{
                 currentDropDownList = webElementFacade.find(By.xpath(dropDownXpath));
         }
 
-        public void chooseBrandFromCarBrandDropDown (String brand) {
-                currentDropDownList.findBy("//div[@class = 'css-1r0zrug e1uu17r80' and contains(.,'"+ brand + "')]")
-                        .click();
-
-        }
-
         public void chooseFromDropDown(String toChose) {
                 currentDropDownList.waitUntilClickable();
                 currentDropDownList.findBy("(//div[@class = 'css-u25ii9 e154wmfa0']//div[@role = 'option' and contains(.,'"+ toChose +"')])")
@@ -86,6 +82,11 @@ public class MainPageWithSearch extends PageObject{
                         .click();
         }
 
+        public void collectTitlesOfCars() {
+                titlesOfElementsAfterSearchList = findAll(By.xpath(
+                        "//span[@data-ftid = 'bull_title']"));
+        }
+
         public void collectMileageOfCars() {
                 mileageOfElementsAfterSearchList = findAll(By.xpath(
                         "//div[@data-ftid = 'component_inline-bull-description']/span[5]"));
@@ -95,13 +96,18 @@ public class MainPageWithSearch extends PageObject{
                 pricesOfElementsAfterSearchList = findAll(By.xpath("//span[@data-ftid = 'bull_price']"));
         }
 
+        @Step("Проверка года выпуска.(>= 2007)")
+        public void checkIfAllCarsYearMoreThen (Integer moreThan) {
+                Assertions.assertThat(titlesOfElementsAfterSearchList
+                        .stream()
+                        .filter(o ->
+                        {
+                                Integer year = Integer.parseInt(o.getText().substring(o.getText().length() -4, o.getText().length()));
+                                return year >= moreThan;
 
-        public List<WebElementFacade> getMileageOfElementsAfterSearchList() {
-                return mileageOfElementsAfterSearchList;
-        }
+                        })
+                        .count()).isEqualTo(20);
 
-        public List<WebElementFacade> getPricesOfElementsAfterSearchList() {
-                return pricesOfElementsAfterSearchList;
         }
 
         @Step("Проверка наличия у каждой позиции пробега.(в списке 20 машин, значит должно быть 20 элементов)")
@@ -109,6 +115,15 @@ public class MainPageWithSearch extends PageObject{
                 Assertions.assertThat((long) mileageOfElementsAfterSearchList
                         .size()).isEqualTo(20);
         }
+
+        @Step("Проверка наличия у каждой позиции пробега.(в списке 20 машин, значит должно быть 20 элементов)")
+        public void checkIfCarIsNotSold () {
+                Assertions.assertThat(titlesOfElementsAfterSearchList
+                        .stream()
+                        .filter(o -> o.getCssValue("text-decoration").contains("line-through"))
+                        .count()).isLessThan(1);
+        }
+
 }
 
 
